@@ -1,12 +1,14 @@
-package com.spring.AddressBook.model;
+package com.spring.AddressBook.dto;
+
 
 import lombok.*;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Contact {
+public class ContactDTO {
     private long id;
     private String name;
     private String phone;

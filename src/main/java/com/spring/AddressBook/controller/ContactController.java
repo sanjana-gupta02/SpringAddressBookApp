@@ -1,6 +1,8 @@
 package com.spring.AddressBook.controller;
 
+import com.spring.AddressBook.dto.ContactDTO;
 import com.spring.AddressBook.model.Contact;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -13,46 +15,57 @@ public class ContactController {
     private final List<Contact> contactList = new ArrayList<>();
     private long idCounter = 1L;
 
+    // Convert Contact to DTO
+    private ContactDTO convertToDTO(Contact contact) {
+        return new ContactDTO(contact.getId(),contact.getName(), contact.getPhone(), contact.getEmail(), contact.getAddress());
+    }
+
 
     //Get All Contacts
     @GetMapping
-    public List<Contact> getAllContacts() {
-        return contactList;
+    public ResponseEntity<List<Contact>> getAllContacts() {
+        return ResponseEntity.ok(contactList);
     }
 
     //Get Contact by ID;
     @GetMapping("/{id}")
-    public Optional<Contact> getById(@PathVariable long id) {
-        return contactList.stream().filter(contact -> contact.getId() == id).findFirst();
+    public ResponseEntity<ContactDTO> getById(@PathVariable long id) {
+        Optional<Contact> contact = contactList.stream().filter(c -> c.getId() == id).findFirst();
+        return contact.map(value -> ResponseEntity.ok(convertToDTO(value)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 
     //Post: Add New Contact
     @PostMapping
-    public Contact addAllContacts(@RequestBody Contact contact) {
-        contact.setId(idCounter++);
+    public ResponseEntity<ContactDTO> addContact(@RequestBody ContactDTO contactDTO) {
+        Contact contact = new Contact(idCounter++, contactDTO.getName(), contactDTO.getPhone(), contactDTO.getEmail(), contactDTO.getAddress());
         contactList.add(contact);
-        return contact;
+        return ResponseEntity.ok(convertToDTO(contact));
     }
 
-    //Put: Update Contact by Id
+
     @PutMapping("/{id}")
-    public Contact updateContact(@PathVariable long id, @RequestBody Contact updatedContact) {
+    public ResponseEntity<ContactDTO> updateContact(@PathVariable long id, @RequestBody ContactDTO updatedContactDTO) {
         for (int i = 0; i < contactList.size(); i++) {
             if (contactList.get(i).getId() == id) {
-                updatedContact.setId(id);
+                Contact updatedContact = new Contact(id, updatedContactDTO.getName(), updatedContactDTO.getPhone(), updatedContactDTO.getEmail(), updatedContactDTO.getAddress());
                 contactList.set(i, updatedContact);
-                return updatedContact;
+                return ResponseEntity.ok(convertToDTO(updatedContact));
             }
         }
-        return null;
+        return ResponseEntity.notFound().build();
     }
 
-    //Delete by ID
+
     @DeleteMapping("/{id}")
-    public String deleteById(@PathVariable long id){
-        contactList.removeIf(contact -> contact.getId()==id);
-        return "Contact with ID " + id + " deleted.";
-
+    public ResponseEntity<String> deleteById(@PathVariable long id) {
+        boolean removed = contactList.removeIf(contact -> contact.getId() == id);
+        if (removed) {
+            return ResponseEntity.ok("Contact with ID " + id + " deleted.");
+        }
+        return ResponseEntity.notFound().build();
     }
+
 }
 
