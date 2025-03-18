@@ -13,8 +13,13 @@ import java.util.Optional;
 @RequestMapping("/contacts")
 public class ContactController {
 
-    @Autowired  // Injecting Service Interface (Dependency Injection)
-    IContactService contactService;
+    private final IContactService contactService;
+
+    // Constructor-based Dependency Injection
+    @Autowired
+    public ContactController(IContactService contactService) {
+        this.contactService = contactService;
+    }
 
     // Get All Contacts
     @GetMapping

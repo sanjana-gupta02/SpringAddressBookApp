@@ -27,22 +27,24 @@ public class SecurityConfig {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
+    // Password encoder bean to hash passwords
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // User details service bean to authenticate user based on email
     @Bean
     public UserDetailsService userDetailsService(UserRepository userRepository) {
         return email -> userRepository.findByEmail(email)
                 .map(user -> User.builder()
                         .username(user.getEmail())
                         .password(user.getPassword())
-                        .roles("USER") // ✅ Ensure users have correct roles
                         .build()
                 ).orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
     }
 
+    // AuthenticationManager bean to authenticate user based on password and user details service
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -51,18 +53,17 @@ public class SecurityConfig {
         return new ProviderManager(authProvider);
     }
 
+    // Security filter chain to configure HTTP security
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for testing
+                .csrf(csrf -> csrf.disable())  // Disable CSRF (for now)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Disable session management (use JWT)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register",
-                                "/api/auth/login",
-                                "/api/auth/forgot-password",
-                                "/api/auth/reset-password")
-                        .permitAll() // Allow public access
-                        .anyRequest().authenticated()
-                );
+                        .requestMatchers("/api/auth/**").permitAll()  // Allow authentication endpoints (login/register)
+                        .requestMatchers("/contacts/**").authenticated()  // Require authentication for contacts
+                )
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT filter before UsernamePasswordAuthenticationFilter
 
         return http.build();
     }

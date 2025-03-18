@@ -38,32 +38,35 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            chain.doFilter(request, response);
+            chain.doFilter(request, response);  // If no valid token, proceed with the request
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = authHeader.substring(7);  // Extract the token from the header
         String email = null;
 
         try {
-            email = jwtUtil.extractEmail(token);
+            email = jwtUtil.extractEmail(token);  // Extract email from the token
         } catch (Exception e) {
             LOGGER.warning("Invalid or expired JWT token: " + e.getMessage());
-            chain.doFilter(request, response);
+            chain.doFilter(request, response);  // Proceed without authentication if token is invalid
             return;
         }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // Load user details using the email extracted from token
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
+            // If the token is valid, set the authentication in SecurityContextHolder
             if (jwtUtil.validateToken(token, userDetails)) {
                 JwtAuthenticationToken authentication = new JwtAuthenticationToken(userDetails, token, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                // Set the authentication context
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
-        chain.doFilter(request, response);
+        chain.doFilter(request, response);  // Continue with the filter chain
     }
 }

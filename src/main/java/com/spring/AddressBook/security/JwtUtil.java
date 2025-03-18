@@ -11,14 +11,14 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    // ✅ Generate a secure 256-bit key
+    // Secure 256-bit key
     private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 900_000)) // 15 min expiry
+                .setExpiration(new Date(System.currentTimeMillis() + 900_000)) // 15-minute expiry
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
