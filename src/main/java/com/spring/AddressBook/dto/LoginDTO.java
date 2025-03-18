@@ -1,14 +1,13 @@
 package com.spring.AddressBook.dto;
 
-
 import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
-public class UserDTO {
+public class LoginDTO {
     private String email;
     private String password;
 }

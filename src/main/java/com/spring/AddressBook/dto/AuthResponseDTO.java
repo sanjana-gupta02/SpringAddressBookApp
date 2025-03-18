@@ -4,10 +4,10 @@ import lombok.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
-public class RegisterRequest {
-    private String email;
-    private String password;
+public class AuthResponseDTO {
+    private String message;
+    private String token;
 }
