@@ -26,4 +26,11 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     public Object getPrincipal() {
         return principal;
     }
+
+    @Override
+    public void setAuthenticated(boolean authenticated) {
+        if (!authenticated) {
+            super.setAuthenticated(false);
+        }
+    }
 }

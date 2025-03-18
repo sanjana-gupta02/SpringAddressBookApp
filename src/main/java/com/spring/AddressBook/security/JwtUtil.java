@@ -18,7 +18,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 24 hours expiration
+                .setExpiration(new Date(System.currentTimeMillis() + 900_000)) // 15 min expiry
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }

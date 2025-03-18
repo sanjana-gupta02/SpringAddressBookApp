@@ -3,6 +3,8 @@ package com.spring.AddressBook.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
@@ -20,4 +22,7 @@ public class User {
 
     @Column(nullable = false) // 🔥 Removed "unique = true"
     private String password;
+
+
+    private String resetToken;
 }

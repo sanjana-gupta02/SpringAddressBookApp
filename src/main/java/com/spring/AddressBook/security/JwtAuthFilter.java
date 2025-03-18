@@ -12,10 +12,14 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
+import java.util.logging.Logger;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
+
+    private static final Logger LOGGER = Logger.getLogger(JwtAuthFilter.class.getName());
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
@@ -39,7 +43,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        String email = jwtUtil.extractEmail(token);
+        String email = null;
+
+        try {
+            email = jwtUtil.extractEmail(token);
+        } catch (Exception e) {
+            LOGGER.warning("Invalid or expired JWT token: " + e.getMessage());
+            chain.doFilter(request, response);
+            return;
+        }
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);

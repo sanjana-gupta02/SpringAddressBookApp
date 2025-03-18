@@ -9,6 +9,8 @@ import com.spring.AddressBook.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -45,4 +47,29 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new AuthResponseDTO(e.getMessage(), null));
         }
     }
+
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");  // ✅ Extract email from JSON
+        if (email == null || email.isEmpty()) {
+            return ResponseEntity.badRequest().body("Email is required!");
+        }
+        String message = userService.forgotPassword(email);
+        return ResponseEntity.ok(message);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody Map<String, String> request) {
+        String token = request.get("token");
+        String newPassword = request.get("newPassword");
+
+        if (token == null || newPassword == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token and new password are required!");
+        }
+
+        String message = userService.resetPassword(token, newPassword);
+        return ResponseEntity.ok(message);
+    }
+
 }
