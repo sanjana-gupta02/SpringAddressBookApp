@@ -1,7 +1,7 @@
 package com.spring.AddressBook.listener;
 
-import com.spring.AddressBook.service.EmailService;
 import com.spring.AddressBook.dto.UserDTO;
+import com.spring.AddressBook.service.EmailService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
